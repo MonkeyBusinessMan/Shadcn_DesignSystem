@@ -28,4 +28,5 @@ export interface ComponentDemo {
   render: (values: ControlValues) => ReactNode;
   code: (values: ControlValues) => string;
   states?: ComponentState[];
+  documentation?: () => ReactNode;
 }

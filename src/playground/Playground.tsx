@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RotateCcw, Copy, Check } from "lucide-react";
 
 function defaultsFor(demo: ComponentDemo): ControlValues {
@@ -39,13 +40,8 @@ export function Playground({ demo }: { demo: ComponentDemo }) {
     setTimeout(() => setCopied(false), 1500);
   }
 
-  return (
+  const demoBody = (
     <div className="flex flex-col gap-6">
-      <div>
-        <h2 className="text-2xl font-semibold tracking-tight">{demo.name}</h2>
-        <p className="text-muted-foreground mt-1 text-sm">{demo.description}</p>
-      </div>
-
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_280px]">
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
@@ -174,6 +170,28 @@ export function Playground({ demo }: { demo: ComponentDemo }) {
           <code>{code}</code>
         </pre>
       </div>
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <h2 className="text-2xl font-semibold tracking-tight">{demo.name}</h2>
+        <p className="text-muted-foreground mt-1 text-sm">{demo.description}</p>
+      </div>
+
+      {demo.documentation ? (
+        <Tabs defaultValue="demo">
+          <TabsList>
+            <TabsTrigger value="demo">Démo</TabsTrigger>
+            <TabsTrigger value="documentation">Documentation</TabsTrigger>
+          </TabsList>
+          <TabsContent value="demo">{demoBody}</TabsContent>
+          <TabsContent value="documentation">{demo.documentation()}</TabsContent>
+        </Tabs>
+      ) : (
+        demoBody
+      )}
     </div>
   );
 }

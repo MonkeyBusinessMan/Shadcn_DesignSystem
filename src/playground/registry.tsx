@@ -1,6 +1,7 @@
 import { useId, useRef, useState, type ComponentProps, type MouseEvent } from "react";
 import type { ComponentDemo, ControlValues } from "./types";
 import { cn } from "@/lib/utils";
+import { BreadcrumbDocumentation } from "./docs/breadcrumb-docs";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Alert, AlertActions, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -1643,6 +1644,7 @@ export const demos: ComponentDemo[] = [
       </Breadcrumb>
     ),
     code: () => `<Breadcrumb>\n  <BreadcrumbList>\n    <BreadcrumbItem><BreadcrumbLink href="/projets">Projets</BreadcrumbLink></BreadcrumbItem>\n    <BreadcrumbSeparator />\n    <BreadcrumbItem><BreadcrumbPage>Sprint 12</BreadcrumbPage></BreadcrumbItem>\n  </BreadcrumbList>\n</Breadcrumb>`,
+    documentation: () => <BreadcrumbDocumentation />,
   },
   {
     slug: "pagination",
