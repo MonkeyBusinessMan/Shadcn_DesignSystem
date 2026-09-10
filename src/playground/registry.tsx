@@ -1,4 +1,4 @@
-import { useId, useRef, useState, type ComponentProps, type MouseEvent } from "react";
+import { Fragment, useId, useRef, useState, type ComponentProps, type MouseEvent } from "react";
 import type { ComponentDemo, ControlValues } from "./types";
 import { cn } from "@/lib/utils";
 import { BreadcrumbDocumentation } from "./docs/breadcrumb-docs";
@@ -486,6 +486,93 @@ const BUTTON_STATES: ComponentDemo["states"] = [
   { name: "Disabled", render: () => <Button disabled>Bouton</Button> },
   { name: "Selected", render: () => <Button selected>Bouton</Button> },
   { name: "Loading", render: () => <Button loading>Bouton</Button> },
+];
+
+const BREADCRUMB_LABELS = ["Accueil", "Documentation", "Thèmes", "Paramètres de configuration", "Langue"];
+
+function breadcrumbItemsForNiveaux(niveaux: string): { label: string; href?: string }[] {
+  if (niveaux === "+5") {
+    return [
+      { label: "Accueil", href: "#" },
+      { label: "…" }, // ellipsis, rendered separately
+      { label: "Paramètres de configuration", href: "#" },
+      { label: "Langue" },
+    ];
+  }
+  const n = Number(niveaux);
+  const labels = BREADCRUMB_LABELS.slice(0, n);
+  return labels.map((label, i) => (i < labels.length - 1 ? { label, href: "#" } : { label }));
+}
+
+function BreadcrumbNiveauxDemo({ niveaux }: { niveaux: string }) {
+  const items = breadcrumbItemsForNiveaux(niveaux);
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        {items.map((item, i) => (
+          <Fragment key={item.label + i}>
+            <BreadcrumbItem>
+              {item.label === "…" ? (
+                <BreadcrumbEllipsis />
+              ) : item.href ? (
+                <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+              ) : (
+                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+              )}
+            </BreadcrumbItem>
+            {i < items.length - 1 && <BreadcrumbSeparator />}
+          </Fragment>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
+  );
+}
+
+function breadcrumbNiveauxCode(niveaux: string): string {
+  const items = breadcrumbItemsForNiveaux(niveaux);
+  const parts = items.map((item) => {
+    if (item.label === "…") return "    <BreadcrumbItem><BreadcrumbEllipsis /></BreadcrumbItem>";
+    if (item.href) return `    <BreadcrumbItem><BreadcrumbLink href="${item.href}">${item.label}</BreadcrumbLink></BreadcrumbItem>`;
+    return `    <BreadcrumbItem><BreadcrumbPage>${item.label}</BreadcrumbPage></BreadcrumbItem>`;
+  });
+  const withSeparators = parts.flatMap((p, i) =>
+    i < parts.length - 1 ? [p, "    <BreadcrumbSeparator />"] : [p]
+  );
+  return `<Breadcrumb>\n  <BreadcrumbList>\n${withSeparators.join("\n")}\n  </BreadcrumbList>\n</Breadcrumb>`;
+}
+
+const BREADCRUMB_ITEM_STATES: ComponentDemo["states"] = [
+  {
+    name: "Default",
+    render: () => <BreadcrumbLink href="#">Documentation</BreadcrumbLink>,
+  },
+  {
+    name: "Hovered",
+    render: () => (
+      <BreadcrumbLink href="#" className="text-[var(--breadcrumb-text-hover)]">
+        Documentation
+      </BreadcrumbLink>
+    ),
+  },
+  {
+    name: "Focused",
+    render: () => (
+      <BreadcrumbLink
+        href="#"
+        className="text-[var(--breadcrumb-text-hover)] outline-2 outline-offset-2 outline-[var(--breadcrumb-focus-ring)]"
+      >
+        Documentation
+      </BreadcrumbLink>
+    ),
+  },
+  {
+    name: "Current",
+    render: () => <BreadcrumbPage>Documentation</BreadcrumbPage>,
+  },
+  {
+    name: "More than five",
+    render: () => <BreadcrumbEllipsis />,
+  },
 ];
 
 const FORM_FIELD_POOL: {
@@ -1631,19 +1718,18 @@ export const demos: ComponentDemo[] = [
     name: "Breadcrumb",
     category: "Navigation",
     description: "Fil d'ariane pour la hiérarchie de navigation.",
-    controls: [],
-    render: () => (
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem><BreadcrumbLink href="#">Projets</BreadcrumbLink></BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem><BreadcrumbLink href="#">Le Studio</BreadcrumbLink></BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem><BreadcrumbPage>Sprint 12</BreadcrumbPage></BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-    ),
-    code: () => `<Breadcrumb>\n  <BreadcrumbList>\n    <BreadcrumbItem><BreadcrumbLink href="/projets">Projets</BreadcrumbLink></BreadcrumbItem>\n    <BreadcrumbSeparator />\n    <BreadcrumbItem><BreadcrumbPage>Sprint 12</BreadcrumbPage></BreadcrumbItem>\n  </BreadcrumbList>\n</Breadcrumb>`,
+    controls: [
+      {
+        key: "niveaux",
+        label: "Niveaux",
+        type: "select",
+        options: ["2", "3", "4", "5", "+5"],
+        default: "2",
+      },
+    ],
+    render: (values) => <BreadcrumbNiveauxDemo niveaux={String(values.niveaux)} />,
+    code: (values) => breadcrumbNiveauxCode(String(values.niveaux)),
+    states: BREADCRUMB_ITEM_STATES,
     documentation: () => <BreadcrumbDocumentation />,
   },
   {
