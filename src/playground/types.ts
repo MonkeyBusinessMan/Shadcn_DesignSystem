@@ -28,5 +28,7 @@ export interface ComponentDemo {
   render: (values: ControlValues) => ReactNode;
   code: (values: ControlValues) => string;
   states?: ComponentState[];
+  /** Catalogue des sous-composants (ex: SidebarHeader, SidebarTrigger...), affiché sous "Sous-composants". */
+  parts?: ComponentState[];
   documentation?: () => ReactNode;
 }

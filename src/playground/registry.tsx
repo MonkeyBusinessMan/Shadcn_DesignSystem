@@ -1,4 +1,4 @@
-import { Fragment, useId, useRef, useState, type ComponentProps, type MouseEvent } from "react";
+import { Fragment, useId, useRef, useState, type ComponentProps, type MouseEvent, type ReactNode } from "react";
 import type { ComponentDemo, ControlValues } from "./types";
 import { cn } from "@/lib/utils";
 import { BreadcrumbDocumentation } from "./docs/breadcrumb-docs";
@@ -146,12 +146,15 @@ import {
   SidebarInset,
   SidebarMenu,
   SidebarMenuAction,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarProvider,
+  SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
@@ -212,6 +215,7 @@ import {
   X,
   LogOut,
   UserCircle,
+  Inbox,
 } from "lucide-react";
 import { Bar, BarChart, XAxis } from "recharts";
 
@@ -827,6 +831,246 @@ function DateRangePickerDemo({
     />
   );
 }
+
+function SidebarPartFrame({ children, width = "w-56" }: { children: ReactNode; width?: string }) {
+  return (
+    <SidebarProvider className={cn("!min-h-0", width)}>
+      <div className={cn("bg-sidebar text-sidebar-foreground overflow-hidden rounded-md border", width)}>
+        {children}
+      </div>
+    </SidebarProvider>
+  );
+}
+
+const SIDEBAR_PARTS: ComponentDemo["parts"] = [
+  {
+    name: "SidebarHeader",
+    render: () => (
+      <SidebarPartFrame>
+        <SidebarHeader>
+          <div className="flex items-center gap-2 px-2 py-1.5">
+            <div className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md">
+              <LayoutGrid className="size-4" />
+            </div>
+            <div className="grid flex-1 text-left leading-tight">
+              <span className="truncate text-sm font-semibold">Le Studio</span>
+              <span className="text-muted-foreground truncate text-xs">Design system Kanban</span>
+            </div>
+          </div>
+        </SidebarHeader>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarFooter",
+    render: () => (
+      <SidebarPartFrame>
+        <SidebarFooter>
+          <div className="flex items-center gap-2 px-2 py-1.5">
+            <Avatar className="size-8 rounded-md">
+              <AvatarFallback className="rounded-md">QF</AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left leading-tight">
+              <span className="truncate text-sm font-medium">Quentin Feret</span>
+              <span className="text-muted-foreground truncate text-xs">quentin.feret@lestudio.fr</span>
+            </div>
+          </div>
+        </SidebarFooter>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarContent",
+    render: () => (
+      <SidebarPartFrame>
+        <SidebarContent className="p-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton isActive>
+                <Home /> Kanban
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Terminal /> Sprints
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarContent>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarGroup",
+    render: () => (
+      <SidebarPartFrame>
+        <SidebarGroup>
+          <SidebarGroupLabel>Vues</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton isActive>
+                  <Home /> Kanban
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarMenu",
+    render: () => (
+      <SidebarPartFrame>
+        <div className="p-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton isActive>
+                <Home /> Kanban
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Terminal /> Sprints
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <CalendarDays /> Calendrier
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarMenuButton",
+    render: () => (
+      <SidebarPartFrame width="w-48">
+        <div className="p-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton isActive>
+                <Home /> Actif
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Terminal /> Inactif
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarMenuAction",
+    render: () => (
+      <SidebarPartFrame width="w-56">
+        <div className="p-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Terminal /> Sprints
+              </SidebarMenuButton>
+              <SidebarMenuAction>
+                <MoreHorizontal />
+              </SidebarMenuAction>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarMenuSub",
+    render: () => (
+      <SidebarPartFrame width="w-56">
+        <div className="p-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton isActive>
+                <Home /> Kanban
+              </SidebarMenuButton>
+              <SidebarMenuSub>
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton href="#" isActive>
+                    Vue tableau
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+                <SidebarMenuSubItem>
+                  <SidebarMenuSubButton href="#">Vue liste</SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              </SidebarMenuSub>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarMenuBadge",
+    render: () => (
+      <SidebarPartFrame width="w-56">
+        <div className="p-2">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Inbox /> Boîte de réception
+              </SidebarMenuButton>
+              <SidebarMenuBadge>12</SidebarMenuBadge>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </div>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarMenuSkeleton",
+    render: () => (
+      <SidebarPartFrame width="w-56">
+        <div className="flex flex-col gap-1 p-2">
+          <SidebarMenuSkeleton showIcon />
+          <SidebarMenuSkeleton showIcon />
+          <SidebarMenuSkeleton showIcon />
+        </div>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarTrigger",
+    render: () => (
+      <SidebarPartFrame width="w-auto">
+        <div className="flex items-center gap-2 p-2">
+          <SidebarTrigger />
+          <span className="text-sm">Replier/déplier</span>
+        </div>
+      </SidebarPartFrame>
+    ),
+  },
+  {
+    name: "SidebarRail",
+    render: () => (
+      <SidebarProvider className="relative !min-h-0 h-32 w-56 overflow-hidden rounded-md border">
+        <Sidebar collapsible="icon" className="!absolute !inset-y-0 !h-full">
+          <SidebarContent className="p-2">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton isActive>
+                  <Home /> Kanban
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarRail />
+        </Sidebar>
+      </SidebarProvider>
+    ),
+  },
+];
 
 export const demos: ComponentDemo[] = [
   // ---------- Inputs & Forms ----------
@@ -1925,6 +2169,7 @@ export const demos: ComponentDemo[] = [
       </SidebarProvider>
     ),
     code: () => `<SidebarProvider>\n  <Sidebar collapsible="icon">\n    <SidebarHeader>\n      <div className="flex items-center gap-2 px-2 py-1.5">\n        <div className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-md">\n          <LayoutGrid className="size-4" />\n        </div>\n        <div className="grid flex-1 text-left leading-tight group-data-[collapsible=icon]:hidden">\n          <span className="text-sm font-semibold">Le Studio</span>\n          <span className="text-muted-foreground text-xs">Design system Kanban</span>\n        </div>\n      </div>\n    </SidebarHeader>\n    <SidebarContent>\n      <SidebarGroup>\n        <SidebarGroupLabel>Vues</SidebarGroupLabel>\n        <SidebarGroupContent>\n          <SidebarMenu>\n            <Collapsible defaultOpen className="group/collapsible">\n              <SidebarMenuItem>\n                <CollapsibleTrigger asChild>\n                  <SidebarMenuButton isActive tooltip="Kanban">\n                    <Home /> Kanban\n                    <ChevronDown className="ml-auto transition-transform group-data-[state=closed]/collapsible:-rotate-90" />\n                  </SidebarMenuButton>\n                </CollapsibleTrigger>\n                <CollapsibleContent>\n                  <SidebarMenuSub>\n                    <SidebarMenuSubItem>\n                      <SidebarMenuSubButton href="#" isActive>Vue tableau</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                    <SidebarMenuSubItem>\n                      <SidebarMenuSubButton href="#">Vue liste</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                    <SidebarMenuSubItem>\n                      <SidebarMenuSubButton href="#">Archivées</SidebarMenuSubButton>\n                    </SidebarMenuSubItem>\n                  </SidebarMenuSub>\n                </CollapsibleContent>\n              </SidebarMenuItem>\n            </Collapsible>\n            <SidebarMenuItem>\n              <SidebarMenuButton tooltip="Sprints"><Terminal /> Sprints</SidebarMenuButton>\n              <DropdownMenu>\n                <DropdownMenuTrigger asChild>\n                  <SidebarMenuAction showOnHover><MoreHorizontal /></SidebarMenuAction>\n                </DropdownMenuTrigger>\n                <DropdownMenuContent side="right" align="start">\n                  <DropdownMenuItem><Pencil /> Renommer</DropdownMenuItem>\n                  <DropdownMenuItem variant="destructive"><Trash2 /> Supprimer</DropdownMenuItem>\n                </DropdownMenuContent>\n              </DropdownMenu>\n            </SidebarMenuItem>\n            <SidebarMenuItem>\n              <SidebarMenuButton tooltip="Calendrier"><CalendarDays /> Calendrier</SidebarMenuButton>\n            </SidebarMenuItem>\n          </SidebarMenu>\n        </SidebarGroupContent>\n      </SidebarGroup>\n      <SidebarSeparator />\n      <SidebarGroup>\n        <SidebarGroupLabel>Gestion</SidebarGroupLabel>\n        <SidebarGroupContent>\n          <SidebarMenu>\n            <SidebarMenuItem>\n              <SidebarMenuButton tooltip="Projets"><FolderKanban /> Projets</SidebarMenuButton>\n            </SidebarMenuItem>\n            <SidebarMenuItem>\n              <SidebarMenuButton tooltip="Équipe"><Users /> Équipe</SidebarMenuButton>\n            </SidebarMenuItem>\n          </SidebarMenu>\n        </SidebarGroupContent>\n      </SidebarGroup>\n    </SidebarContent>\n    <SidebarFooter>\n      <SidebarMenu>\n        <SidebarMenuItem>\n          <DropdownMenu>\n            <DropdownMenuTrigger asChild>\n              <SidebarMenuButton size="lg">\n                <Avatar className="size-8 rounded-md"><AvatarFallback>QF</AvatarFallback></Avatar>\n                <div className="grid flex-1 text-left leading-tight">\n                  <span className="text-sm font-medium">Quentin Feret</span>\n                  <span className="text-muted-foreground text-xs">quentin.feret@lestudio.fr</span>\n                </div>\n                <ChevronsUpDown className="ml-auto size-4" />\n              </SidebarMenuButton>\n            </DropdownMenuTrigger>\n            <DropdownMenuContent side="top" align="start">\n              <DropdownMenuItem><UserCircle /> Profil</DropdownMenuItem>\n              <DropdownMenuItem><Settings /> Paramètres</DropdownMenuItem>\n              <DropdownMenuSeparator />\n              <DropdownMenuItem variant="destructive"><LogOut /> Se déconnecter</DropdownMenuItem>\n            </DropdownMenuContent>\n          </DropdownMenu>\n        </SidebarMenuItem>\n      </SidebarMenu>\n    </SidebarFooter>\n  </Sidebar>\n  <SidebarInset>\n    <div className="flex h-12 items-center gap-2 border-b px-3">\n      <SidebarTrigger />\n      <span className="text-sm font-medium">Kanban</span>\n    </div>\n  </SidebarInset>\n</SidebarProvider>`,
+    parts: SIDEBAR_PARTS,
   },
   {
     slug: "menubar",

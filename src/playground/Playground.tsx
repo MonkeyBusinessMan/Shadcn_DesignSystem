@@ -156,6 +156,25 @@ export function Playground({ demo }: { demo: ComponentDemo }) {
         </div>
       )}
 
+      {demo.parts && demo.parts.length > 0 && (
+        <div className="border-border rounded-lg border p-4">
+          <span className="text-sm font-medium">Sous-composants</span>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {demo.parts.map((part) => (
+              <div
+                key={part.name}
+                className="border-border bg-card flex flex-col items-center gap-3 rounded-lg border p-4"
+              >
+                <span className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
+                  {part.name}
+                </span>
+                <div className="flex w-full items-center justify-center">{part.render()}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="border-border rounded-lg border">
         <div className="border-border flex items-center justify-between border-b px-4 py-2">
           <span className="text-muted-foreground text-xs font-medium uppercase tracking-wide">
