@@ -833,99 +833,64 @@ function DateRangePickerDemo({
   );
 }
 
-function FileUploadDemo({
+function FileUploadFieldDemo({
   label,
-  accept,
-  acceptLabel,
-  maxSizeMb,
+  showLabel,
+  helpText,
+  showHelpText,
+  requirement,
   multiple,
   disabled,
 }: {
   label: string;
-  accept: string;
-  acceptLabel: string;
-  maxSizeMb: number;
+  showLabel: boolean;
+  helpText: string;
+  showHelpText: boolean;
+  requirement: "required" | "optional" | "none";
   multiple: boolean;
   disabled: boolean;
 }) {
-  const [files, setFiles] = useState<File[]>([]);
+  const id = useId();
   return (
-    <div className="w-80">
-      <FileUpload
-        label={label}
-        accept={accept}
-        acceptLabel={acceptLabel}
-        maxSizeMb={maxSizeMb}
-        multiple={multiple}
-        disabled={disabled}
-        value={files}
-        onValueChange={setFiles}
-      />
-    </div>
+    <FieldGroup className="w-72">
+      <Field>
+        <FieldLabel htmlFor={id} className={cn(!showLabel && "sr-only")}>
+          {label}
+          {requirement === "required" && <span className="text-destructive ml-0.5">*</span>}
+          {requirement === "optional" && (
+            <span className="text-muted-foreground ml-1 text-xs font-normal">(optionnel)</span>
+          )}
+        </FieldLabel>
+        {showHelpText && helpText && <FieldDescription>{helpText}</FieldDescription>}
+        <FileUpload id={id} multiple={multiple} disabled={disabled} />
+      </Field>
+    </FieldGroup>
   );
 }
 
+function FileUploadStatePreview({ className, ...props }: ComponentProps<typeof FileUpload>) {
+  const id = useId();
+  return <FileUpload id={id} className={cn("w-56", className)} {...props} />;
+}
+
 const FILE_UPLOAD_STATES: ComponentDemo["states"] = [
+  { name: "Enabled", render: () => <FileUploadStatePreview /> },
+  { name: "Disabled", render: () => <FileUploadStatePreview disabled /> },
   {
-    name: "Vide",
-    render: () => (
-      <div className="w-72">
-        <FileUpload
-          label="Pièces jointes"
-          acceptLabel="PDF, PNG, JPG"
-          maxSizeMb={5}
-          value={[]}
-          onValueChange={() => {}}
-        />
-      </div>
-    ),
+    name: "Hovered",
+    render: () => <FileUploadStatePreview className="border-ring/60" />,
   },
   {
-    name: "Avec fichiers importés",
-    render: () => (
-      <div className="w-72">
-        <FileUpload
-          label="Pièces jointes"
-          acceptLabel="PDF, PNG, JPG"
-          maxSizeMb={5}
-          value={[
-            new File(["contenu"], "cahier-des-charges.pdf", { type: "application/pdf" }),
-            new File(["contenu"], "maquette.png", { type: "image/png" }),
-          ]}
-          onValueChange={() => {}}
-        />
-      </div>
-    ),
+    name: "Focused",
+    render: () => <FileUploadStatePreview className={FORCED_RING} />,
   },
   {
-    name: "Fichier unique (multiple=false)",
-    render: () => (
-      <div className="w-72">
-        <FileUpload
-          label="Photo de profil"
-          acceptLabel="PNG, JPG"
-          maxSizeMb={2}
-          multiple={false}
-          value={[new File(["contenu"], "avatar.jpg", { type: "image/jpeg" })]}
-          onValueChange={() => {}}
-        />
-      </div>
-    ),
+    name: "Plusieurs fichiers (multiple)",
+    render: () => <FileUploadStatePreview multiple />,
   },
   {
-    name: "Disabled",
-    render: () => (
-      <div className="w-72">
-        <FileUpload
-          label="Pièces jointes"
-          acceptLabel="PDF, PNG, JPG"
-          maxSizeMb={5}
-          value={[new File(["contenu"], "cahier-des-charges.pdf", { type: "application/pdf" })]}
-          onValueChange={() => {}}
-          disabled
-        />
-      </div>
-    ),
+    name: "Error",
+    render: () => <FileUploadStatePreview aria-invalid="true" />,
   },
 ];
 
@@ -1452,26 +1417,34 @@ export const demos: ComponentDemo[] = [
     slug: "file-upload",
     name: "File Upload",
     category: "Inputs & Forms",
-    description: "Champ de saisie pour importer un ou plusieurs fichiers (clic ou glisser-déposer), avec titre, description des formats/poids autorisés, compteur de fichiers importés et liste retirable. Composant maison (non fourni par shadcn/ui), construit sur Field.",
+    description: "Champ de sélection de fichier(s), basé sur le variant type=\"file\" du composant Input de shadcn/ui (https://ui.shadcn.com/docs/components/base/input#file), avec le même modèle de props qu'Input et la prise en charge de la sélection d'un ou plusieurs fichiers (multiple).",
     controls: [
       { key: "label", label: "label", type: "text", default: "Pièces jointes" },
-      { key: "acceptLabel", label: "acceptLabel (formats affichés)", type: "text", default: "PDF, PNG, JPG" },
-      { key: "accept", label: "accept (attribut HTML)", type: "text", default: ".pdf,.png,.jpg" },
-      { key: "maxSizeMb", label: "maxSizeMb", type: "number", default: 5, min: 1, max: 50 },
-      { key: "multiple", label: "multiple", type: "boolean", default: true },
+      { key: "showLabel", label: "afficher le label", type: "boolean", default: true },
+      { key: "showHelpText", label: "afficher le texte d'aide", type: "boolean", default: true },
+      { key: "helpText", label: "texte d'aide", type: "text", default: "PDF, PNG ou JPG. 10 Mo maximum." },
+      { key: "requirement", label: "requirement", type: "select", options: ["required", "optional", "none"], default: "optional" },
+      { key: "multiple", label: "multiple (importer plusieurs fichiers)", type: "boolean", default: true },
       { key: "disabled", label: "disabled", type: "boolean", default: false },
     ],
     render: (v) => (
-      <FileUploadDemo
+      <FileUploadFieldDemo
         label={bt(v, "label")}
-        accept={bt(v, "accept")}
-        acceptLabel={bt(v, "acceptLabel")}
-        maxSizeMb={Number(v.maxSizeMb)}
+        showLabel={bb(v, "showLabel")}
+        helpText={bt(v, "helpText")}
+        showHelpText={bb(v, "showHelpText")}
+        requirement={bv(v, "requirement") as "required" | "optional" | "none"}
         multiple={bb(v, "multiple")}
         disabled={bb(v, "disabled")}
       />
     ),
-    code: (v) => `const [files, setFiles] = useState<File[]>([]);\n\n<FileUpload\n  label="${bt(v, "label")}"\n  accept="${bt(v, "accept")}"\n  acceptLabel="${bt(v, "acceptLabel")}"\n  maxSizeMb={${v.maxSizeMb}}\n  value={files}\n  onValueChange={setFiles}${bb(v, "multiple") ? "" : "\n  multiple={false}"}${bb(v, "disabled") ? "\n  disabled" : ""}\n/>`,
+    code: (v) => {
+      const requirement = bv(v, "requirement");
+      const requiredMark = requirement === "required" ? `<span className="text-destructive ml-0.5">*</span>` : requirement === "optional" ? `<span className="text-muted-foreground ml-1 text-xs font-normal">(optionnel)</span>` : "";
+      const labelClass = bb(v, "showLabel") ? "" : " className=\"sr-only\"";
+      const helpLine = bb(v, "showHelpText") ? `\n  <FieldDescription>${bt(v, "helpText")}</FieldDescription>` : "";
+      return `<Field>\n  <FieldLabel htmlFor="file"${labelClass}>\n    ${bt(v, "label")}${requiredMark ? `\n    ${requiredMark}` : ""}\n  </FieldLabel>${helpLine}\n  <FileUpload\n    id="file"${bb(v, "multiple") ? "\n    multiple" : ""}${bb(v, "disabled") ? "\n    disabled" : ""}\n  />\n</Field>`;
+    },
     states: FILE_UPLOAD_STATES,
   },
   {
