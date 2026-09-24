@@ -86,6 +86,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FileUpload } from "@/components/ui/file-upload";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Input } from "@/components/ui/input";
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
@@ -832,6 +833,102 @@ function DateRangePickerDemo({
   );
 }
 
+function FileUploadDemo({
+  label,
+  accept,
+  acceptLabel,
+  maxSizeMb,
+  multiple,
+  disabled,
+}: {
+  label: string;
+  accept: string;
+  acceptLabel: string;
+  maxSizeMb: number;
+  multiple: boolean;
+  disabled: boolean;
+}) {
+  const [files, setFiles] = useState<File[]>([]);
+  return (
+    <div className="w-80">
+      <FileUpload
+        label={label}
+        accept={accept}
+        acceptLabel={acceptLabel}
+        maxSizeMb={maxSizeMb}
+        multiple={multiple}
+        disabled={disabled}
+        value={files}
+        onValueChange={setFiles}
+      />
+    </div>
+  );
+}
+
+const FILE_UPLOAD_STATES: ComponentDemo["states"] = [
+  {
+    name: "Vide",
+    render: () => (
+      <div className="w-72">
+        <FileUpload
+          label="Pièces jointes"
+          acceptLabel="PDF, PNG, JPG"
+          maxSizeMb={5}
+          value={[]}
+          onValueChange={() => {}}
+        />
+      </div>
+    ),
+  },
+  {
+    name: "Avec fichiers importés",
+    render: () => (
+      <div className="w-72">
+        <FileUpload
+          label="Pièces jointes"
+          acceptLabel="PDF, PNG, JPG"
+          maxSizeMb={5}
+          value={[
+            new File(["contenu"], "cahier-des-charges.pdf", { type: "application/pdf" }),
+            new File(["contenu"], "maquette.png", { type: "image/png" }),
+          ]}
+          onValueChange={() => {}}
+        />
+      </div>
+    ),
+  },
+  {
+    name: "Fichier unique (multiple=false)",
+    render: () => (
+      <div className="w-72">
+        <FileUpload
+          label="Photo de profil"
+          acceptLabel="PNG, JPG"
+          maxSizeMb={2}
+          multiple={false}
+          value={[new File(["contenu"], "avatar.jpg", { type: "image/jpeg" })]}
+          onValueChange={() => {}}
+        />
+      </div>
+    ),
+  },
+  {
+    name: "Disabled",
+    render: () => (
+      <div className="w-72">
+        <FileUpload
+          label="Pièces jointes"
+          acceptLabel="PDF, PNG, JPG"
+          maxSizeMb={5}
+          value={[new File(["contenu"], "cahier-des-charges.pdf", { type: "application/pdf" })]}
+          onValueChange={() => {}}
+          disabled
+        />
+      </div>
+    ),
+  },
+];
+
 function SidebarPartFrame({ children, width = "w-56" }: { children: ReactNode; width?: string }) {
   return (
     <SidebarProvider className={cn("!min-h-0", width)}>
@@ -1350,6 +1447,32 @@ export const demos: ComponentDemo[] = [
       />
     ),
     code: (v) => `const [range, setRange] = useState<DateRange | undefined>();\n\n<DateRangePicker\n  value={range}\n  onValueChange={setRange}\n  placeholder="${bt(v, "placeholder")}"\n  numberOfMonths={${v.numberOfMonths}}${bb(v, "disabled") ? "\n  disabled" : ""}\n/>`,
+  },
+  {
+    slug: "file-upload",
+    name: "File Upload",
+    category: "Inputs & Forms",
+    description: "Champ de saisie pour importer un ou plusieurs fichiers (clic ou glisser-déposer), avec titre, description des formats/poids autorisés, compteur de fichiers importés et liste retirable. Composant maison (non fourni par shadcn/ui), construit sur Field.",
+    controls: [
+      { key: "label", label: "label", type: "text", default: "Pièces jointes" },
+      { key: "acceptLabel", label: "acceptLabel (formats affichés)", type: "text", default: "PDF, PNG, JPG" },
+      { key: "accept", label: "accept (attribut HTML)", type: "text", default: ".pdf,.png,.jpg" },
+      { key: "maxSizeMb", label: "maxSizeMb", type: "number", default: 5, min: 1, max: 50 },
+      { key: "multiple", label: "multiple", type: "boolean", default: true },
+      { key: "disabled", label: "disabled", type: "boolean", default: false },
+    ],
+    render: (v) => (
+      <FileUploadDemo
+        label={bt(v, "label")}
+        accept={bt(v, "accept")}
+        acceptLabel={bt(v, "acceptLabel")}
+        maxSizeMb={Number(v.maxSizeMb)}
+        multiple={bb(v, "multiple")}
+        disabled={bb(v, "disabled")}
+      />
+    ),
+    code: (v) => `const [files, setFiles] = useState<File[]>([]);\n\n<FileUpload\n  label="${bt(v, "label")}"\n  accept="${bt(v, "accept")}"\n  acceptLabel="${bt(v, "acceptLabel")}"\n  maxSizeMb={${v.maxSizeMb}}\n  value={files}\n  onValueChange={setFiles}${bb(v, "multiple") ? "" : "\n  multiple={false}"}${bb(v, "disabled") ? "\n  disabled" : ""}\n/>`,
+    states: FILE_UPLOAD_STATES,
   },
   {
     slug: "slider",
