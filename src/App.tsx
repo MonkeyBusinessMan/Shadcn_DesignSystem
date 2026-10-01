@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { demos, categories } from "./playground/registry";
 import { Playground } from "./playground/Playground";
+import { foundations } from "./foundations";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Moon, Search, Sun } from "lucide-react";
@@ -17,7 +18,8 @@ export default function App() {
     return demos.filter((d) => d.name.toLowerCase().includes(q) || d.category.toLowerCase().includes(q));
   }, [query]);
 
-  const activeDemo = demos.find((d) => d.slug === active) ?? demos[0];
+  const activeFoundation = foundations.find((f) => f.slug === active);
+  const activeDemo = activeFoundation ? undefined : (demos.find((d) => d.slug === active) ?? demos[0]);
 
   return (
     <div className={cn("h-screen", dark && "dark")}>
@@ -45,6 +47,25 @@ export default function App() {
             </div>
           </div>
           <nav className="min-h-0 flex-1 overflow-y-auto p-2">
+            <div className="mb-3">
+              <p className="text-muted-foreground px-2 py-1 text-xs font-semibold uppercase tracking-wide">
+                Fondamentaux
+              </p>
+              {foundations.map((foundation) => (
+                <button
+                  key={foundation.slug}
+                  onClick={() => setActive(foundation.slug)}
+                  className={cn(
+                    "w-full rounded-md px-2 py-1.5 text-left text-sm transition-colors",
+                    active === foundation.slug
+                      ? "bg-accent text-accent-foreground font-medium"
+                      : "hover:bg-accent/50 text-foreground/80"
+                  )}
+                >
+                  {foundation.name}
+                </button>
+              ))}
+            </div>
             {categories.map((category) => {
               const items = filtered
                 .filter((d) => d.category === category)
@@ -76,7 +97,11 @@ export default function App() {
         </aside>
 
         <main className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-8">
-          <Playground demo={activeDemo} key={activeDemo.slug} />
+          {activeFoundation ? (
+            <div key={activeFoundation.slug}>{activeFoundation.render()}</div>
+          ) : (
+            <Playground demo={activeDemo!} key={activeDemo!.slug} />
+          )}
         </main>
       </div>
     </div>
