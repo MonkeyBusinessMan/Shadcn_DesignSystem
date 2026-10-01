@@ -29,7 +29,6 @@ export default function App() {
             <div>
               <h1 className="text-sm font-semibold">shadcn/ui Playground</h1>
               <p className="text-muted-foreground text-xs">{demos.length} composants</p>
-              <p className="text-xs font-medium text-blue-600">Hello World</p>
             </div>
             <Button variant="ghost" size="icon-sm" onClick={() => setDark((d) => !d)} title="Basculer le thème">
               {dark ? <Sun /> : <Moon />}
